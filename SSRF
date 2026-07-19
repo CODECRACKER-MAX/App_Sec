@@ -1,0 +1,15 @@
+# This code is vulnerable to SSRF
+
+from flask import Flask, request
+import requests
+
+app = Flask(__name__)
+
+@app.route('/fetch_preview')
+def fetch_preview():
+    # User-controlled input makes the server send requests on their behalf
+    target_url = request.args.get('url')
+    
+    # Vulnerable: No validation or sanitization
+    response = requests.get(target_url) 
+    return response.text, response.status_code

@@ -13,3 +13,6 @@ def fetch_preview():
     # Vulnerable: No validation or sanitization
     response = requests.get(target_url) 
     return response.text, response.status_code
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8085)

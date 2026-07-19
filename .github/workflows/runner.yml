@@ -1,29 +1,16 @@
 name: CI
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
   workflow_dispatch:
-
+  
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v5
-
-      # Check current user
-      - name: Show current user
-        run: whoami
-
-      # List repository files
-      - name: List files
-        run: ls -la
-
+        
       # Install Semgrep
       - name: Install Semgrep
         run: pip install semgrep
@@ -34,4 +21,4 @@ jobs:
       
       - name: Display report
         run: cat report.txt
-      
+        

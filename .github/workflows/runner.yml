@@ -21,7 +21,7 @@ jobs:
 
       # Save the semgrep report
       - name: Upload Semgrep Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: semgrep-report
           path: semgrep-report.json

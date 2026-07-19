@@ -17,8 +17,11 @@ jobs:
 
       # Run Semgrep scan
       - name: Run Semgrep
-        run: semgrep --config=auto . > report.txt
-      
-      - name: Display report
-        run: cat report.txt
-        
+        run: semgrep --config=auto . --json --output semgrep-report.json
+
+      # Save the semgrep report
+      - name: Upload Semgrep Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-report
+          path: semgrep-report.json

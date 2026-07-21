@@ -30,18 +30,17 @@ jobs:
         with:
           sarif_file: semgrep.sarif
           
-      # Install trivy
-      - name: Trivy Installation & Scanning
-        run: |
-          sudo apt-get install wget apt-transport-https gnupg lsb-release
-          wget -qO - https://github.io | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://github.io generic main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install trivy
-          
       # Run Trivy Scan via CLI
       - name: Run Trivy Scan via CLI      
-        run: trivy fs . --scanners vuln,misconfig,secret,license --format sarif --output trivy.sarif
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          version: 'latest' # Dynamically updates the Trivy engine to the newest release
+          scanners: 'vuln,misconfig,secret,license' # Your specified active scanners
+          format: 'sarif'
+          output: 'trivy.sarif'
+          exit-code: '0' # Keeps the pipeline running so the report can upload successfully
                  
       # Trivy Scan Results Upload (FIXED: Upgraded to @v4)
       - name: Trivy Scan Results Upload to GitHub
@@ -49,6 +48,14 @@ jobs:
         if: always()
         with:
           sarif_file: 'trivy.sarif'
+          
+      - name: Start Python Application / Preparing for DAST
+        run: |
+          python3 SSRF.py & 
+          echo "Application started in background with PID $!"
+          
+          # Wait up to 15 seconds for the local port 3000 to become responsive
+          timeout 15s bash -c 'until echo > /dev/tcp/127.0.0.1/3000; do sleep 1; done' || true
 
       # Run ZAP using GitHub ACTIONS
       - name: Run OWASP ZAP Full Scan
